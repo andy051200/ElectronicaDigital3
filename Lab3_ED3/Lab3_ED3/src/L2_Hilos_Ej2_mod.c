@@ -68,17 +68,11 @@ void My_Thread4(void *ptr)
 int main(void)
 {
 	pthread_t mis_hilos[3];				// array con los 4 hilos a utilizar
-	// Los siguientes son dos strings
+	// Strings que estaran en los mensajes a desplegar en los primeros hilos
 	char *message1 = "Hello\n";
 	char *message2 = "world\n";
 	char *message3 = "llamo\n";
-
-	// La siguiente función crea un POSIX thread (pthread), que es un hilo del
-	// estándar POSIX. Los argumentos de entrada son: la variable tipo pthread,
-	// configuraciones (NULL para usar las default), la función a ejecutar por
-	// el hilo, y un puntero para la información que se quiere pasar al nuevo
-	// hilo (NULL si no se quiere pasar nada).
-
+	//creacion de cada uno de los hilos que se usaran
 	pthread_create(&mis_hilos[0], NULL, (void*)&My_Thread2, (void*)message2);	//creacion del segundo hilo
 	pthread_create(&mis_hilos[1], NULL, (void*)&My_Thread2, (void*)message3);	//creacion del tercer hilo
 	pthread_create(&mis_hilos[3], NULL, (void*)&My_Thread4, NULL);				//creacion del cuarto hilo
