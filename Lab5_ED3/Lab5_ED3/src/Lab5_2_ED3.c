@@ -22,22 +22,15 @@
 /* ============================================================================
 	Directivas a ejecutar
 ============================================================================ */
-#define bocina 9		//directiva pin de bocina
-#define boton 7		//directiva pin de boton
+#define boton 7				//directiva pin de boton
+#define bocina 9			//directiva pin de bocina
 
 /* ============================================================================
-	Prototipos de funciones
-============================================================================ */
-void antirrebote(void);	//funcion con antirrebote
-void switches(void);	//funcion con el switch de seleccion
-void sonido(void);		//funcion para reproducir el sonido
-
-/* ============================================================================
-	variables a implementar
+	struct para variables a implementar
 ============================================================================ */
 struct variables{
-		int contador;
-		char1[1];
+		int contador;		//para poder encender la bocina
+		char1[1];			//para los valores a ingresar del teclado
 	};
 struct variables vars;
 /* ============================================================================
@@ -52,37 +45,34 @@ void hilo2(void *ptr)
 	while(1)
 	{
 		printf("Ingrese los comandos: p-pausa, r-reanudar, s-salir:\n");
-		scanf("%9s", vars.char1); 					//se toma la entrada char
-		if (strcmp(vars.char1, "p")==0)				//condicion si se pone p->pausa
+		scanf("%9s", vars.char1); 						//se toma la entrada char
+		if (strcmp(vars.char1, "p")==0)					//condicion si se pone p->pausa
 		{
 			printf("Pausar sonido\n");
-			vars.contador=0;			//se guarda el valor de frecuencia seleccionado
+			vars.contador=0;							//hace que en el main loop no suene
 		}
-		else if (strcmp(vars.char1, "r")==0)		//condicion si se pone r->renaudar
+		else if (strcmp(vars.char1, "r")==0)			//condicion si se pone r->renaudar
 		{
 			vars.contador=5;
-			printf("Reanudar sonido\n");
+			printf("Reanudar sonido\n");				//reanuda en el main loop
 		}
-		else if (strcmp(vars.char1, "s")==0)		//condicion si se pone s->salir
+		else if (strcmp(vars.char1, "s")==0)			//condicion si se pone s->salir
 		{
 			printf("Salir del programa\n");
-			exit (-1);								//se sale del programa
+			exit (-1);									//se sale del programa
 		}
 		else
-			printf("Caracter no valido\n");			//condicion si se ingrese algun otro caracter
-	}	
-	
+			printf("Caracter no valido\n");				//condicion si se ingrese algun otro caracter
+	}		
 }
-
 /* ============================================================================
 	main
 ============================================================================ */
 //----------------------struct con variables gloables a usar
-
 int main(void)
 {
 	//----------------------configuracion de raspi
-	wiringPiSetup();			//
+	wiringPiSetup();									//se incluye directiva por defecto
 	pinMode(bocina, OUTPUT);							//declaracion pin de salida para bocina
 	pinMode(boton, INPUT);								//declaracion pin de entrada para boton
 	//----------------------inicializacion de variables a usar
@@ -96,7 +86,6 @@ int main(void)
 	while(1)
 	{
 			//----------------------llamado de funciones
-			//antirrebote();			//se invoca la funcion con el antirrebote para el boton de seleccion de frecuencias
 			if (digitalRead(boton)==0 )
 			{
 				vars.contador++;
