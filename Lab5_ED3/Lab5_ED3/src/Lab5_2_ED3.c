@@ -2,6 +2,8 @@
  ============================================================================
  Name        : Lab5_ED3.c
  Author      : Andy Bonilla
+ Carne		 : 19451
+ Curso		 : Electrónica Digital 3
  Version     : Para ejercicio 2, parte 3
  Copyright   : Your copyright notice
  Description : Hello World in C, Ansi-style
