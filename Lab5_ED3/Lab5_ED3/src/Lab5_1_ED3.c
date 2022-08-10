@@ -32,11 +32,11 @@
 ============================================================================ */
 
 int main(void) {
-	wiringPiSetup();			//
-	pinMode(LED1, OUTPUT);									//declaracion de primer pin de salida
-	pinMode(LED2, OUTPUT);									//declaracion de segundo pin de salida
+	wiringPiSetup();			
+	pinMode(LED1, OUTPUT);						//declaracion de primer pin de salida
+	pinMode(LED2, OUTPUT);						//declaracion de segundo pin de salida
 	
-	int tiempo1;			//inicializacion de tiempos aleatorios
+	int tiempo1;								//inicializacion de tiempos aleatorios
 	while(1)
 	{
 		tiempo1 = rand() % (1500000-500000+1) + 500001;		//numero aleatorios entre 0.5s y 1.5s
@@ -51,11 +51,3 @@ int main(void) {
 	}
 	return(0);
 }
-
-
-
-
-
-
-
-
