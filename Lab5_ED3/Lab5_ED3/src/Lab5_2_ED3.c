@@ -17,19 +17,19 @@
 #include <unistd.h>
 #include <pthread.h>
 #include <wiringPi.h>
+#include <string.h>
 
 /* ============================================================================
 	Directivas a ejecutar
 ============================================================================ */
-#define bocina 17		//directiva pin de bocina
-#define boton 18		//directiva pin de boton
+#define bocina 9		//directiva pin de bocina
+#define boton 7		//directiva pin de boton
 
 /* ============================================================================
 	Prototipos de funciones
 ============================================================================ */
 void antirrebote(void);	//funcion con antirrebote
 void switches(void);	//funcion con el switch de seleccion
-void entradas(void);	//funcion con las entradas de teclado
 void sonido(void);		//funcion para reproducir el sonido
 
 /* ============================================================================
@@ -40,35 +40,84 @@ struct variables{
 		int contador;
 		int respaldo;
 		int t_delay;
+		int encendido;
 		char char1[1];
 	};
+struct variables vars;
+/* ============================================================================
+	Funcion para segundo hilo
+============================================================================ */
+
+void hilo2(void *ptr)
+{
+	//struct variables vars;
+	int *mensaje;
+	mensaje=(int *)ptr;
+	while(1)
+	{
+		printf("Ingrese los comandos: p-pausa, r-reanudar, s-salir:\n");
+		scanf("%9s", vars.char1); 					//se toma la entrada char
+		if (strcmp(vars.char1, "p")==0)				//condicion si se pone p->pausa
+		{
+			printf("Pausar sonido\n");
+			vars.contador=0;			//se guarda el valor de frecuencia seleccionado
+		}
+		else if (strcmp(vars.char1, "r")==0)		//condicion si se pone r->renaudar
+		{
+			vars.contador=5;
+			printf("Reanudar sonido\n");
+		}
+		else if (strcmp(vars.char1, "s")==0)		//condicion si se pone s->salir
+		{
+			printf("Salir del programa\n");
+			exit (-1);								//se sale del programa
+		}
+		else
+			printf("Caracter no valido\n");			//condicion si se ingrese algun otro caracter
+	}	
+	
+}
 
 /* ============================================================================
 	main
 ============================================================================ */
+//----------------------struct con variables gloables a usar
+
 int main(void)
 {
 	//----------------------configuracion de raspi
-	WiringPiSetupGpio();			//
-	pinMode(bocina, OUTPUT);			//declaracion pin de salida para bocina
-	pinMode(boton, INPUT);				//declaracion pin de entrada para boton
-	//----------------------struct con variables a usar
-	struct variables vars;
+	wiringPiSetup();			//
+	pinMode(bocina, OUTPUT);							//declaracion pin de salida para bocina
+	pinMode(boton, INPUT);								//declaracion pin de entrada para boton
 	//----------------------inicializacion de variables a usar
-	vars.botonazo=0;		//inicializacion para variable del botonazo
-	vars.contador=0;		//inicializacion para variable de contador
-	vars.respaldo=0;		//inicializacion para variable de respaldo
-
+	vars.botonazo=0;									//inicializacion para variable del botonazo
+	vars.contador=0;									//inicializacion para variable de contador
+	vars.respaldo=0;									//inicializacion para variable de respaldo
+	//----------------------inicializacion de segundo hilo
+	pthread_t variable_hilo2;							//variable para identificar el segundo hilo
+	pthread_create(&variable_hilo2, NULL, (void*)&hilo2, (void*)vars.encendido);
 	/* =======================================================================
 		Loop principal
 	========================================================================= */
 	while(1)
 	{
 			//----------------------llamado de funciones
-			antirrebote();			//se invoca la funcion con el antirrebote para el boton de seleccion de frecuencias
-			switches();				//se invoca la funcion con el switch de seleccionde frecuencias
-			entradas();				//se invoca la funcion con las entradas de teclado
-			sonido();				//se invoca la funcion para reproducir el sonido en la bocina
+			//antirrebote();			//se invoca la funcion con el antirrebote para el boton de seleccion de frecuencias
+			if (digitalRead(boton)==0 )
+			{
+				vars.contador++;
+			}
+			if (vars.contador>0)
+			{
+				digitalWrite(bocina,1);		//encendido
+				usleep(1000);				//delay de 1ms
+				digitalWrite(bocina,0);		//apagado
+				usleep(1000);
+			}
+			else if (vars.contador==0)
+			{
+				digitalWrite(bocina,0);		//apagado
+			}
 	}
 	return(0);
 }
@@ -80,89 +129,20 @@ int main(void)
 //---------------------- funcion que servira como un antirrebote
 void antirrebote()
 {
-	struct variables vars;
 	//----------------------deteccion de botonazo
 	if (digitalRead(boton)==0)
 	{
 		vars.botonazo=1;						//antirrebote
 	}
 	//----------------------un tipo de antirrebote
-	if (digitalRead(boton)==0 && vars.botonazo==1)
+	/*if (digitalRead(boton)==0 && vars.botonazo==1)
 	{
-		vars.contador++;
-	}
-}
-
-//---------------------- funcion para switches de seleccion de frecuencias
-void switches()
-{
-	struct variables vars;
-	//switch para seleccionar frecuencias
-	switch(vars.contador)
-	{
-		default:
-			vars.contador=0;
-			break;
-
-		//encendido y apagado de pin para frecuencia 1
-		case (1):
-				vars.t_delay=3822;		//tiempo para reproducir un do
-				break;
-
-		//encendido y apagado de pin para frecuencia 2
-		case(2):
-				vars.t_delay=3033;		//tiempo para reproducir un mi
-				break;
-
-		//encendido y apagado de pin para frecuencia 3
-		case(3):
-				vars.t_delay=2551;		//tiempo para reproducir un sol
-				break;
-
-		//para reiniciar
-		case(4):
-				vars.contador=0;			//se reinicia contador para seleccionar frecuencia
-				break;
-
-	}
-}
-
-//----------------------funcion con las entradas de teclado
-void entradas()
-{
-	struct variables vars;
-	scanf("%9s", vars.char1); 					//se toma la entrada char
-	if (strcmp(vars.char1, "p")==0)				//condicion si se pone p->pausa
-	{
-		printf("Pausar sonido");
-		vars.respaldo=vars.contador;			//se guarda el valor de frecuencia seleccionado
-		vars.contador=0;						//
-	}
-	else if (strcmp(vars.char1, "r")==0)		//condicion si se pone r->renaudar
-	{
-		vars.contador=vars.respaldo;
-		vars.respaldo=0;
-		printf("Reanudar sonido");
-
-	}
-	else if (strcmp(vars.char1, "s")==0)		//condicion si se pone s->salir
-	{
-		printf("Salir del programa");
-		exit (-1);								//se sale del programa
+		vars.encendido=1;
+		vars.botonazo=0;
 	}
 	else
-		printf("Caracter no valido");			//condicion si se ingrese algun otro caracter
+	{
+		vars.encendido=0;
+	}*/
 }
-
-//----------------------funcion para reproducir
-void sonido()
-{
-	struct variables vars;
-	digitalWrite(bocina,1);		//encendido
-	usleep(vars.t_delay);		//tiempo de delay para la nota seleccionada
-	digitalWrite(bocina,0);		//apagado
-}
-
-
-
 
