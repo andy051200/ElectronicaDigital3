@@ -121,28 +121,3 @@ int main(void)
 	}
 	return(0);
 }
-
-/* ============================================================================
-	Funciones
-============================================================================ */
-
-//---------------------- funcion que servira como un antirrebote
-void antirrebote()
-{
-	//----------------------deteccion de botonazo
-	if (digitalRead(boton)==0)
-	{
-		vars.botonazo=1;						//antirrebote
-	}
-	//----------------------un tipo de antirrebote
-	/*if (digitalRead(boton)==0 && vars.botonazo==1)
-	{
-		vars.encendido=1;
-		vars.botonazo=0;
-	}
-	else
-	{
-		vars.encendido=0;
-	}*/
-}
-
