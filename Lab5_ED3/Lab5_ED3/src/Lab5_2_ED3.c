@@ -36,12 +36,8 @@ void sonido(void);		//funcion para reproducir el sonido
 	variables a implementar
 ============================================================================ */
 struct variables{
-		int botonazo;
 		int contador;
-		int respaldo;
-		int t_delay;
-		int encendido;
-		char char1[1];
+		char1[1];
 	};
 struct variables vars;
 /* ============================================================================
@@ -50,9 +46,9 @@ struct variables vars;
 
 void hilo2(void *ptr)
 {
-	//struct variables vars;
-	int *mensaje;
-	mensaje=(int *)ptr;
+	/* =======================================================================
+		Loop secundario de hilo 2
+	========================================================================= */
 	while(1)
 	{
 		printf("Ingrese los comandos: p-pausa, r-reanudar, s-salir:\n");
@@ -90,12 +86,10 @@ int main(void)
 	pinMode(bocina, OUTPUT);							//declaracion pin de salida para bocina
 	pinMode(boton, INPUT);								//declaracion pin de entrada para boton
 	//----------------------inicializacion de variables a usar
-	vars.botonazo=0;									//inicializacion para variable del botonazo
 	vars.contador=0;									//inicializacion para variable de contador
-	vars.respaldo=0;									//inicializacion para variable de respaldo
 	//----------------------inicializacion de segundo hilo
 	pthread_t variable_hilo2;							//variable para identificar el segundo hilo
-	pthread_create(&variable_hilo2, NULL, (void*)&hilo2, (void*)vars.encendido);
+	pthread_create(&variable_hilo2, NULL, (void*)&hilo2, NULL);
 	/* =======================================================================
 		Loop principal
 	========================================================================= */
